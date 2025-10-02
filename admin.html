@@ -220,33 +220,17 @@
             color: #c62828;
             border: 1px solid #f44336;
         }
-
-        .auth-section {
-            background: #fff3e0;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 2px solid #ffb74d;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎫 نظام إدارة اشتراكات BLS</h1>
-            <p>بواسطة CasanovaDZ - إدارة العملاء والاشتراكات</p>
+            <p>بواسطة CasanovaDZ - إنشاء وإدارة التوكنات</p>
         </div>
 
         <div class="content">
-            <div class="auth-section">
-                <div class="control-group">
-                    <label>🔑 مفتاح الإدارة:</label>
-                    <input type="password" id="adminSecret" placeholder="أدخل مفتاح الإدارة...">
-                </div>
-                <button class="btn" onclick="loadSubscriptions()">🔍 تحميل الاشتراكات</button>
-            </div>
-
-            <div id="stats" class="stats" style="display: none;">
+            <div class="stats" id="stats" style="display: none;">
                 <div class="stat-card">
                     <h3>إجمالي الاشتراكات</h3>
                     <div class="number" id="totalCount">0</div>
@@ -262,12 +246,12 @@
             </div>
 
             <div class="controls">
-                <h3>🛠️ أدوات الإدارة</h3>
+                <h3>🛠️ أدوات إنشاء التوكنات</h3>
                 <div class="control-group">
                     <label>إنشاء توكنات جديدة:</label>
-                    <input type="number" id="tokenCount" placeholder="عدد التوكنات" value="1" min="1" max="50">
+                    <input type="number" id="tokenCount" placeholder="عدد التوكنات" value="5" min="1" max="50">
                     <input type="text" id="tokenPrefix" placeholder="بادئة التوكن (مثال: BLSDZ)" value="BLSDZ">
-                    <input type="number" id="tokenMonths" placeholder="عدد الأشهر" value="1" min="1" max="12">
+                    <input type="number" id="tokenMonths" placeholder="عدد الأشهر" value="12" min="1" max="36">
                 </div>
                 <button class="btn" onclick="generateTokens()">🎫 إنشاء توكنات جديدة</button>
 
@@ -275,13 +259,17 @@
                     <div class="control-group">
                         <label>تجديد اشتراك محدد:</label>
                         <input type="text" id="renewToken" placeholder="أدخل رمز الاشتراك">
-                        <input type="number" id="renewMonths" placeholder="عدد الأشهر" value="1" min="1" max="12">
+                        <input type="number" id="renewMonths" placeholder="عدد الأشهر" value="12" min="1" max="36">
                     </div>
                     <button class="btn btn-info" onclick="renewSubscription()">🔄 تجديد الاشتراك</button>
                 </div>
             </div>
 
             <div id="message"></div>
+
+            <button class="btn" onclick="loadSubscriptions()" style="width: 100%; margin-bottom: 20px;">
+                🔄 تحديث قائمة الاشتراكات
+            </button>
 
             <div id="subscriptionsList" class="subscriptions-list" style="display: none;">
                 <h3 style="padding: 20px; background: #f8f9fa; margin: 0;">📋 قائمة الاشتراكات</h3>
@@ -290,7 +278,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = 'https://bls-subscription-server.onrender.com';
 
         function showMessage(text, type = 'success') {
             const messageDiv = document.getElementById('message');
@@ -301,20 +289,9 @@
         }
 
         async function loadSubscriptions() {
-            const adminSecret = document.getElementById('adminSecret').value;
-            if (!adminSecret) {
-                showMessage('❌ يرجى إدخال مفتاح الإدارة', 'error');
-                return;
-            }
-
             try {
-                const response = await fetch(`${API_BASE}/admin/subscriptions`, {
-                    headers: { 
-                        'Authorization': `Bearer ${adminSecret}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
+                const response = await fetch(`${API_BASE}/admin/subscriptions`);
+                
                 if (!response.ok) {
                     throw new Error('فشل في تحميل البيانات');
                 }
@@ -364,21 +341,14 @@
         }
 
         async function generateTokens() {
-            const adminSecret = document.getElementById('adminSecret').value;
             const count = document.getElementById('tokenCount').value;
             const prefix = document.getElementById('tokenPrefix').value;
             const months = document.getElementById('tokenMonths').value;
-
-            if (!adminSecret) {
-                showMessage('❌ يرجى إدخال مفتاح الإدارة', 'error');
-                return;
-            }
 
             try {
                 const response = await fetch(`${API_BASE}/admin/generate-tokens`, {
                     method: 'POST',
                     headers: { 
-                        'Authorization': `Bearer ${adminSecret}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ 
@@ -409,27 +379,24 @@
         }
 
         async function renewSubscription() {
-            const adminSecret = document.getElementById('adminSecret').value;
             const token = document.getElementById('renewToken').value;
             const months = document.getElementById('renewMonths').value;
 
-            if (!adminSecret || !token) {
-                showMessage('❌ يرجى إدخال جميع البيانات', 'error');
+            if (!token) {
+                showMessage('❌ يرجى إدخال رمز الاشتراك', 'error');
                 return;
             }
 
             await renewSpecific(token, months);
         }
 
-        async function renewSpecific(token, months = 1) {
-            const adminSecret = document.getElementById('adminSecret').value;
+        async function renewSpecific(token, months = 12) {
             const renewMonths = months || document.getElementById('renewMonths').value;
 
             try {
                 const response = await fetch(`${API_BASE}/renew-subscription`, {
                     method: 'POST',
                     headers: { 
-                        'Authorization': `Bearer ${adminSecret}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ 
@@ -468,12 +435,10 @@
             }
         }
 
-        // تحميل تلقائي عند إدخال المفتاح
-        document.getElementById('adminSecret').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loadSubscriptions();
-            }
-        });
+        // تحميل تلقائي عند فتح الصفحة
+        window.onload = function() {
+            loadSubscriptions();
+        };
     </script>
 </body>
 </html>

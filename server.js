@@ -9,48 +9,45 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// قاعدة بيانات مؤقتة (استبدلها بقاعدة بيانات حقيقية)
 // قاعدة بيانات الاشتراكات - محدثة
 let subscriptions = {
     "BLSDZ001": { 
         active: true, 
-        expiry: "2024-12-31", 
+        expiry: "2025-12-31",
         plan: "monthly",
         createdAt: "2024-01-01"
     },
     "BLSDZ002": { 
         active: true, 
-        expiry: "2024-11-30", 
+        expiry: "2025-12-31",
         plan: "monthly",
         createdAt: "2024-01-15"
     },
     "BLSDZ003": { 
         active: true, 
-        expiry: "2025-01-01", 
+        expiry: "2025-12-31",
         plan: "monthly",
         createdAt: "2024-01-20"
     },
     "TESTFREE": { 
         active: true, 
-        expiry: "2024-12-31", 
+        expiry: "2025-12-31",
         plan: "monthly",
         createdAt: "2024-01-01"
     },
     "CASANOVA001": { 
         active: true, 
-        expiry: "2024-12-31", 
+        expiry: "2025-12-31",
         plan: "monthly",
         createdAt: "2024-01-01"
     }
 };
 
-
-
-// ==== الروابط الأساسية ====
-
-// التحقق من صحة التوكن
+// ==== التحقق من صحة التوكن ====
 app.get('/verify-token', (req, res) => {
     const token = req.query.token;
+    
+    console.log('🔍 طلب تحقق من التوكن:', token);
     
     if (!token) {
         return res.json({ 
@@ -79,7 +76,6 @@ app.get('/verify-token', (req, res) => {
     }
 
     if (expiryDate < currentDate) {
-        // تحديث الحالة إلى غير نشط إذا انتهت الصلاحية
         subscriptions[token].active = false;
         return res.json({ 
             valid: false, 
@@ -87,108 +83,26 @@ app.get('/verify-token', (req, res) => {
         });
     }
 
-    // حساب الأيام المتبقية
     const daysLeft = Math.ceil((expiryDate - currentDate) / (1000 * 60 * 60 * 24));
+    
+    console.log('✅ توكن صالح:', token, 'متبقي:', daysLeft, 'أيام');
     
     res.json({
         valid: true,
         expiry: subscription.expiry,
         daysLeft: daysLeft,
         plan: subscription.plan,
-        active: true
-    });
-});
-
-// إنشاء اشتراك جديد (للاستخدام الداخلي)
-app.post('/create-subscription', (req, res) => {
-    const { token, expiry, plan = "monthly" } = req.body;
-    
-    // تحقق من الصلاحيات (يمكنك إضافة تحقق أكثر تعقيداً)
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-        return res.status(401).json({ error: "غير مصرح" });
-    }
-
-    if (!token || !expiry) {
-        return res.status(400).json({ error: "البيانات غير مكتملة" });
-    }
-
-    if (subscriptions[token]) {
-        return res.status(400).json({ error: "رمز الاشتراك موجود مسبقاً" });
-    }
-
-    subscriptions[token] = {
         active: true,
-        expiry: expiry,
-        plan: plan,
-        createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    res.json({ 
-        success: true, 
-        message: "تم إنشاء الاشتراك بنجاح",
-        token: token
+        message: "الاشتراك ساري المفعول"
     });
 });
 
-// تجديد اشتراك موجود
-app.post('/renew-subscription', (req, res) => {
-    const { token, months = 1 } = req.body;
-    
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-        return res.status(401).json({ error: "غير مصرح" });
-    }
+// ==== إدارة الاشتراكات (بدون مصادقة) ====
 
-    if (!subscriptions[token]) {
-        return res.status(404).json({ error: "رمز الاشتراك غير موجود" });
-    }
-
-    const currentExpiry = new Date(subscriptions[token].expiry);
-    const currentDate = new Date();
-    
-    // إذا انتهت الصلاحية، ابدأ من اليوم، وإذا لا زالت سارية أضف للأجل الحالي
-    let newExpiry = currentExpiry > currentDate ? currentExpiry : currentDate;
-    newExpiry.setMonth(newExpiry.getMonth() + months);
-    
-    subscriptions[token].expiry = newExpiry.toISOString().split('T')[0];
-    subscriptions[token].active = true;
-
-    res.json({
-        success: true,
-        message: `تم تجديد الاشتراك لـ ${months} أشهر`,
-        newExpiry: subscriptions[token].expiry
-    });
-});
-
-// تعطيل اشتراك
-app.post('/deactivate-subscription', (req, res) => {
-    const { token } = req.body;
-    
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-        return res.status(401).json({ error: "غير مصرح" });
-    }
-
-    if (!subscriptions[token]) {
-        return res.status(404).json({ error: "رمز الاشتراك غير موجود" });
-    }
-
-    subscriptions[token].active = false;
-
-    res.json({
-        success: true,
-        message: "تم تعطيل الاشتراك بنجاح"
-    });
-});
-
-// الحصول على معلومات جميع الاشتراكات (للوحة التحكم)
+// الحصول على جميع الاشتراكات
 app.get('/admin/subscriptions', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-        return res.status(401).json({ error: "غير مصرح" });
-    }
-
+    console.log('📊 طلب الحصول على قائمة الاشتراكات');
+    
     const subscriptionList = Object.entries(subscriptions).map(([token, data]) => ({
         token,
         ...data,
@@ -203,20 +117,10 @@ app.get('/admin/subscriptions', (req, res) => {
     });
 });
 
-// روابط اختبار سريعة
-console.log('🎯 روابط الاختبار:');
-console.log('📍 الصحة: http://localhost:3000/health');
-console.log('✅ TESTFREE: http://localhost:3000/verify-token?token=TESTFREE');
-console.log('✅ BLSDZ001: http://localhost:3000/verify-token?token=BLSDZ001');
-console.log('✅ CASANOVA001: http://localhost:3000/verify-token?token=CASANOVA001');
-console.log('❌ غير موجود: http://localhost:3000/verify-token?token=INVALID');
 // إنشاء توكنات جماعية
 app.post('/admin/generate-tokens', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
-        return res.status(401).json({ error: "غير مصرح" });
-    }
-
+    console.log('🎫 طلب إنشاء توكنات جديدة:', req.body);
+    
     const { count = 1, months = 1, prefix = "BLS" } = req.body;
     const generatedTokens = [];
 
@@ -238,6 +142,8 @@ app.post('/admin/generate-tokens', (req, res) => {
         });
     }
 
+    console.log(`✅ تم إنشاء ${count} توكن جديد`);
+    
     res.json({
         success: true,
         message: `تم إنشاء ${count} رمز اشتراك`,
@@ -245,30 +151,118 @@ app.post('/admin/generate-tokens', (req, res) => {
     });
 });
 
+// إنشاء اشتراك جديد
+app.post('/create-subscription', (req, res) => {
+    const { token, expiry, plan = "monthly" } = req.body;
+    
+    console.log('➕ طلب إنشاء اشتراك جديد:', token);
+    
+    if (!token || !expiry) {
+        return res.status(400).json({ error: "البيانات غير مكتملة" });
+    }
+
+    if (subscriptions[token]) {
+        return res.status(400).json({ error: "رمز الاشتراك موجود مسبقاً" });
+    }
+
+    subscriptions[token] = {
+        active: true,
+        expiry: expiry,
+        plan: plan,
+        createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    console.log('✅ تم إنشاء اشتراك جديد:', token);
+    
+    res.json({ 
+        success: true, 
+        message: "تم إنشاء الاشتراك بنجاح",
+        token: token
+    });
+});
+
+// تجديد اشتراك موجود
+app.post('/renew-subscription', (req, res) => {
+    const { token, months = 1 } = req.body;
+    
+    console.log('🔄 طلب تجديد اشتراك:', token);
+    
+    if (!subscriptions[token]) {
+        return res.status(404).json({ error: "رمز الاشتراك غير موجود" });
+    }
+
+    const currentExpiry = new Date(subscriptions[token].expiry);
+    const currentDate = new Date();
+    
+    let newExpiry = currentExpiry > currentDate ? currentExpiry : currentDate;
+    newExpiry.setMonth(newExpiry.getMonth() + months);
+    
+    subscriptions[token].expiry = newExpiry.toISOString().split('T')[0];
+    subscriptions[token].active = true;
+
+    console.log('✅ تم تجديد الاشتراك:', token, 'لـ', newExpiry.toISOString().split('T')[0]);
+    
+    res.json({
+        success: true,
+        message: `تم تجديد الاشتراك لـ ${months} أشهر`,
+        newExpiry: subscriptions[token].expiry
+    });
+});
+
+// تعطيل اشتراك
+app.post('/deactivate-subscription', (req, res) => {
+    const { token } = req.body;
+    
+    console.log('❌ طلب تعطيل اشتراك:', token);
+    
+    if (!subscriptions[token]) {
+        return res.status(404).json({ error: "رمز الاشتراك غير موجود" });
+    }
+
+    subscriptions[token].active = false;
+
+    console.log('✅ تم تعطيل الاشتراك:', token);
+    
+    res.json({
+        success: true,
+        message: "تم تعطيل الاشتراك بنجاح"
+    });
+});
+
+// ==== روابط الخدمة ====
+
 // رابط الصحة
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         message: 'BLS Subscription Server is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        totalSubscriptions: Object.keys(subscriptions).length,
+        version: '2.0 - No Auth'
     });
 });
 
 // رابط رئيسي
 app.get('/', (req, res) => {
     res.json({ 
-        message: 'مرحباً بك في خادم إدارة اشتراكات BLS',
+        message: '🚀 BLS Doorstep Subscription Server',
+        author: 'CasanovaDZ',
+        version: '2.0 - No Authentication',
+        status: 'يعمل بنجاح',
         endpoints: {
             verify: '/verify-token?token=YOUR_TOKEN',
             health: '/health',
-            admin: '/admin/subscriptions'
-        }
+            admin: '/admin/subscriptions',
+            generate_tokens: '/admin/generate-tokens',
+            test: '/verify-token?token=TESTFREE'
+        },
+        note: 'جميع الخدمات متاحة بدون مصادقة'
     });
 });
 
 // معالج الأخطاء
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('❌ خطأ في الخادم:', err);
     res.status(500).json({ error: 'حدث خطأ في الخادم' });
 });
 
@@ -276,4 +270,8 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`🚀 BLS Subscription Server running on port ${PORT}`);
     console.log(`📍 Health check: http://localhost:${PORT}/health`);
+    console.log(`📍 Verify token: http://localhost:${PORT}/verify-token?token=TESTFREE`);
+    console.log(`📍 Admin panel: http://localhost:${PORT}/admin/subscriptions`);
+    console.log(`📊 Total subscriptions: ${Object.keys(subscriptions).length}`);
+    console.log(`🔓 الوضع: بدون مصادقة - جميع الخدمات مفتوحة`);
 });
