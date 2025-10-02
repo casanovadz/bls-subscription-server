@@ -14,9 +14,9 @@ app.use(express.json());
 let subscriptions = {
     "BLSDZ001": { 
         active: true, 
-        expiry: "2024-12-31", 
+        expiry: "2025-12-31", 
         plan: "monthly",
-        createdAt: "2024-01-01"
+        createdAt: "2025-10-02"
     },
     "BLSDZ002": { 
         active: true, 
@@ -38,9 +38,9 @@ let subscriptions = {
     },
     "CASANOVA001": { 
         active: true, 
-        expiry: "2024-12-31", 
+        expiry: "2025-11-01", 
         plan: "monthly",
-        createdAt: "2024-01-01"
+        createdAt: "2025-10-02"
     }
 };
 
