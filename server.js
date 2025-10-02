@@ -15,7 +15,7 @@ let subscriptions = {
         active: true, 
         expiry: "2025-12-31",
         plan: "monthly",
-        createdAt: "2024-01-01"
+        createdAt: "2025-10-02"
     },
     "BLSDZ002": { 
         active: true, 
@@ -39,7 +39,7 @@ let subscriptions = {
         active: true, 
         expiry: "2025-12-31",
         plan: "monthly",
-        createdAt: "2024-01-01"
+        createdAt: "2025-10-02"
     }
 };
 
