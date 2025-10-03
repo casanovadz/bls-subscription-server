@@ -35,6 +35,36 @@ let subscriptions = {
         plan: "monthly",
         createdAt: "2024-01-01"
     },
+    "BLSDZ77827271759449505535N7HTJ": { 
+        active: true, 
+        expiry: "2025-11-02",
+        plan: "monthly",
+        createdAt: "2025-10-03"
+    },
+    "BLSDZ77827271759449505535ETTNK": { 
+        active: true, 
+        expiry: "2025-11-02",
+        plan: "monthly",
+        createdAt: "2025-10-03"
+    },
+    "BLSDZ77827271759449505535GRJRR": { 
+        active: true, 
+        expiry: "2025-11-02",
+        plan: "monthly",
+        createdAt: "2025-10-03"
+    },
+    "BLSDZ778272717594495055351A6E4": { 
+        active: true, 
+        expiry: "2025-11-02",
+        plan: "monthly",
+        createdAt: "2025-10-03"
+    },
+    "BLSDZ7782727175944950553520HGN": { 
+        active: true, 
+        expiry: "2025-11-02",
+        plan: "monthly",
+        createdAt: "2025-10-03"    
+    },
     "CASANOVA001": { 
         active: true, 
         expiry: "2025-11-01",
