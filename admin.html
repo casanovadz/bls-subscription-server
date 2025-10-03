@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -77,6 +77,7 @@
 
         .stat-card.active { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
         .stat-card.expired { background: linear-gradient(135deg, #f44336, #c62828); }
+        .stat-card.device { background: linear-gradient(135deg, #FF9800, #F57C00); }
 
         .controls {
             background: #f8f9fa;
@@ -145,6 +146,14 @@
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
         .subscriptions-list {
             background: white;
             border-radius: 10px;
@@ -169,19 +178,35 @@
             border-bottom: none;
         }
 
-        .subscription-info h4 {
-            color: #333;
-            margin-bottom: 5px;
+        .subscription-info {
+            flex: 1;
         }
 
-        .subscription-info p {
+        .subscription-info h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .subscription-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
             color: #666;
-            font-size: 14px;
         }
 
         .subscription-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .status-badge {
@@ -199,6 +224,26 @@
         .status-expired {
             background: #ffebee;
             color: #c62828;
+        }
+
+        .device-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .device-registered {
+            background: #e3f2fd;
+            color: #1976D2;
+            border: 1px solid #2196F3;
+        }
+
+        .device-not-registered {
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #ddd;
         }
 
         .message {
@@ -220,13 +265,43 @@
             color: #c62828;
             border: 1px solid #f44336;
         }
+
+        .device-info {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 5px;
+        }
+
+        .device-id {
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+            background: #fff8e1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .small-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎫 نظام إدارة اشتراكات BLS</h1>
-            <p>بواسطة CasanovaDZ - إنشاء وإدارة التوكنات</p>
+            <h1>🎫 نظام إدارة اشتراكات BLS - نظام الجهاز الواحد</h1>
+            <p>بواسطة CasanovaDZ - إدارة التوكنات والأجهزة المرتبطة</p>
         </div>
 
         <div class="content">
@@ -242,6 +317,10 @@
                 <div class="stat-card expired">
                     <h3>الاشتراكات المنتهية</h3>
                     <div class="number" id="expiredCount">0</div>
+                </div>
+                <div class="stat-card device">
+                    <h3>الأجهزة المسجلة</h3>
+                    <div class="number" id="deviceCount">0</div>
                 </div>
             </div>
 
@@ -263,6 +342,16 @@
                     </div>
                     <button class="btn btn-info" onclick="renewSubscription()">🔄 تجديد الاشتراك</button>
                 </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <h4>🔧 أدوات إدارة الأجهزة</h4>
+                    <div class="control-group">
+                        <label>إلغاء قفل جهاز:</label>
+                        <input type="text" id="unlockToken" placeholder="أدخل رمز الاشتراك لإلغاء قفل الجهاز">
+                    </div>
+                    <button class="btn btn-warning" onclick="unlockDevice()">🔓 إلغاء قفل الجهاز</button>
+                    <button class="btn btn-info" onclick="loadDeviceStats()">📊 إحصائيات الأجهزة</button>
+                </div>
             </div>
 
             <div id="message"></div>
@@ -272,7 +361,7 @@
             </button>
 
             <div id="subscriptionsList" class="subscriptions-list" style="display: none;">
-                <h3 style="padding: 20px; background: #f8f9fa; margin: 0;">📋 قائمة الاشتراكات</h3>
+                <h3 style="padding: 20px; background: #f8f9fa; margin: 0;">📋 قائمة الاشتراكات والأجهزة</h3>
             </div>
         </div>
     </div>
@@ -310,12 +399,13 @@
             document.getElementById('totalCount').textContent = data.total;
             document.getElementById('activeCount').textContent = data.active;
             document.getElementById('expiredCount').textContent = data.expired;
+            document.getElementById('deviceCount').textContent = data.withDevice || 0;
             document.getElementById('stats').style.display = 'grid';
 
             // عرض الاشتراكات
             const container = document.getElementById('subscriptionsList');
             container.style.display = 'block';
-            container.innerHTML = '<h3 style="padding: 20px; background: #f8f9fa; margin: 0;">📋 قائمة الاشتراكات</h3>';
+            container.innerHTML = '<h3 style="padding: 20px; background: #f8f9fa; margin: 0;">📋 قائمة الاشتراكات والأجهزة</h3>';
 
             data.subscriptions.forEach(sub => {
                 const item = document.createElement('div');
@@ -324,15 +414,52 @@
                 const statusClass = sub.status === 'active' ? 'status-active' : 'status-expired';
                 const statusText = sub.status === 'active' ? '🟢 نشط' : '🔴 منتهي';
 
+                const hasDevice = sub.registeredDevice;
+                const deviceBadgeClass = hasDevice ? 'device-registered' : 'device-not-registered';
+                const deviceBadgeText = hasDevice ? '📱 جهاز مسجل' : '📭 بدون جهاز';
+
                 item.innerHTML = `
                     <div class="subscription-info">
                         <h4>${sub.token}</h4>
-                        <p>📅 الصلاحية: ${sub.expiry} | 📋 الخطة: ${sub.plan}</p>
-                        <p>⏰ الإنشاء: ${sub.createdAt} | <span class="status-badge ${statusClass}">${statusText}</span></p>
+                        <div class="subscription-details">
+                            <div class="detail-item">
+                                <span>📅 الصلاحية:</span>
+                                <strong>${sub.expiry}</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>📋 الخطة:</span>
+                                <strong>${sub.plan}</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>⏰ الإنشاء:</span>
+                                <strong>${sub.createdAt}</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>الحالة:</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>الجهاز:</span>
+                                <span class="device-badge ${deviceBadgeClass}">${deviceBadgeText}</span>
+                            </div>
+                        </div>
+                        ${hasDevice ? `
+                            <div class="device-info">
+                                <strong>🆔 معرف الجهاز المسجل:</strong>
+                                <div class="device-id">${sub.registeredDevice}</div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-warning small-btn" onclick="unlockSpecificDevice('${sub.token}')">🔓 إلغاء القفل</button>
+                                    <button class="btn btn-info small-btn" onclick="copyDeviceId('${sub.registeredDevice}')">📋 نسخ المعرف</button>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="subscription-actions">
                         <button class="btn btn-info" onclick="renewSpecific('${sub.token}')">🔄 تجديد</button>
                         <button class="btn" onclick="verifyToken('${sub.token}')">🔍 اختبار</button>
+                        ${hasDevice ? `
+                            <button class="btn btn-warning" onclick="testDeviceLock('${sub.token}')">🔒 اختبار القفل</button>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -421,18 +548,106 @@
 
         async function verifyToken(token) {
             try {
+                // اختبار بدون device_id لمعرفة إذا كان التوكن مقفولاً
                 const response = await fetch(`${API_BASE}/verify-token?token=${token}`);
                 const data = await response.json();
                 
                 if (data.valid) {
                     showMessage(`✅ التوكن صالح! الصلاحية: ${data.expiry} (${data.daysLeft} يوم متبقي)`);
                 } else {
-                    showMessage(`❌ التوكن غير صالح: ${data.error}`, 'error');
+                    if (data.error && data.error.includes('جهاز')) {
+                        showMessage(`🔒 التوكن مقفول على جهاز آخر: ${data.error}`, 'error');
+                    } else {
+                        showMessage(`❌ التوكن غير صالح: ${data.error}`, 'error');
+                    }
                 }
                 
             } catch (error) {
                 showMessage('❌ خطأ في التحقق: ' + error.message, 'error');
             }
+        }
+
+        async function unlockDevice() {
+            const token = document.getElementById('unlockToken').value;
+
+            if (!token) {
+                showMessage('❌ يرجى إدخال رمز الاشتراك', 'error');
+                return;
+            }
+
+            await unlockSpecificDevice(token);
+        }
+
+        async function unlockSpecificDevice(token) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/unlock-device`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        token: token
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`✅ ${data.message} - الجهاز السابق: ${data.previousDevice || 'لا يوجد'}`);
+                    loadSubscriptions(); // إعادة تحميل القائمة
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ خطأ في إلغاء القفل: ' + error.message, 'error');
+            }
+        }
+
+        async function loadDeviceStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/device-stats`);
+                const data = await response.json();
+                
+                showMessage(`
+                    📊 إحصائيات الأجهزة:<br>
+                    • إجمالي الاشتراكات: ${data.totalSubscriptions}<br>
+                    • اشتراكات بأجهزة مسجلة: ${data.withDevice}<br>
+                    • اشتراكات بدون أجهزة: ${data.withoutDevice}<br>
+                    • الاشتراكات النشطة: ${data.activeSubscriptions}
+                `);
+                
+            } catch (error) {
+                showMessage('❌ خطأ في تحميل الإحصائيات: ' + error.message, 'error');
+            }
+        }
+
+        async function testDeviceLock(token) {
+            try {
+                // محاولة التحقق بجهاز مختلف
+                const fakeDeviceId = 'test_wrong_device_' + Date.now();
+                const response = await fetch(`${API_BASE}/verify-token?token=${token}&device_id=${fakeDeviceId}`);
+                const data = await response.json();
+                
+                if (data.valid) {
+                    showMessage('⚠️ التنبيه: التوكن مقبول على جهاز مختلف - قد يحتاج إلى إعادة قفل', 'error');
+                } else if (data.error && data.error.includes('جهاز')) {
+                    showMessage('✅ النظام يعمل بشكل صحيح - التوكن مقفول على الجهاز المسجل', 'success');
+                } else {
+                    showMessage(`❌ خطأ في اختبار القفل: ${data.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ خطأ في اختبار القفل: ' + error.message, 'error');
+            }
+        }
+
+        function copyDeviceId(deviceId) {
+            navigator.clipboard.writeText(deviceId).then(() => {
+                showMessage('✅ تم نسخ معرف الجهاز إلى الحافظة');
+            }).catch(() => {
+                showMessage('❌ فشل في نسخ المعرف', 'error');
+            });
         }
 
         // تحميل تلقائي عند فتح الصفحة
