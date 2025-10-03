@@ -13,70 +13,70 @@ app.use(express.json());
 let subscriptions = {
     "BLSDZ001": { 
         active: true, 
-        expiry: "2025-12-31",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null // ← الحقل الجديد
     },
     "BLSDZ002": { 
         active: true, 
-        expiry: "2025-12-31",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null
     },
     "BLSDZ003": { 
         active: true, 
-        expiry: "2025-12-31",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null
     },
     "TESTFREE": { 
         active: true, 
-        expiry: "2025-12-31",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null
      },
     "BLSDZ77827271759449505535N7HTJ": { 
         active: true, 
-        expiry: "2025-11-02",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-03",
         registeredDevice: null
     },
     "BLSDZ77827271759449505535ETTNK": { 
         active: true, 
-        expiry: "2025-11-02",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-03",
         registeredDevice: null
     },
     "BLSDZ77827271759449505535GRJRR": { 
         active: true, 
-        expiry: "2025-11-02",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-03",
         registeredDevice: null
     },
     "BLSDZ778272717594495055351A6E4": { 
         active: true, 
-        expiry: "2025-11-02",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-03",
         registeredDevice: null
     },
     "BLSDZ7782727175944950553520HGN": { 
         active: true, 
-        expiry: "2025-11-02",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-03",
         registeredDevice: null       
     },
     "CASANOVA001": { 
         active: true, 
-        expiry: "2025-11-01",
+        expiry: "2025-10-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null
