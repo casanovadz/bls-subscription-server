@@ -76,7 +76,7 @@ let subscriptions = {
     },
     "CASANOVA001": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2025-11-03",
         plan: "monthly",
         createdAt: "2025-10-02",
         registeredDevice: null
