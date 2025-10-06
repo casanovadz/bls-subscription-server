@@ -335,6 +335,18 @@
                 <button class="btn" onclick="generateTokens()">🎫 إنشاء توكنات جديدة</button>
 
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <h4>👤 تفعيل التوكن للعميل</h4>
+                    <div class="control-group">
+                        <label>تفعيل التوكن على هذا المتصفح:</label>
+                        <input type="text" id="activateToken" placeholder="أدخل رمز الاشتراك للتخزين المحلي">
+                        <input type="text" id="deviceId" placeholder="معرف الجهاز (اختياري)" value="device_${Date.now()}">
+                    </div>
+                    <button class="btn btn-info" onclick="activateToken()">✅ تفعيل التوكن</button>
+                    <button class="btn btn-warning" onclick="deactivateToken()">❌ إلغاء التفعيل</button>
+                    <button class="btn" onclick="checkTokenStatus()">📊 حالة التوكن</button>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
                     <div class="control-group">
                         <label>تجديد اشتراك محدد:</label>
                         <input type="text" id="renewToken" placeholder="أدخل رمز الاشتراك">
@@ -369,12 +381,145 @@
     <script>
         const API_BASE = 'https://bls-subscription-server.onrender.com';
 
+        // وظائف التخزين المحلي
+        function saveActiveToken(tokenData) {
+            localStorage.setItem('bls_active_token', JSON.stringify(tokenData));
+        }
+
+        function getActiveToken() {
+            const tokenData = localStorage.getItem('bls_active_token');
+            return tokenData ? JSON.parse(tokenData) : null;
+        }
+
+        function removeActiveToken() {
+            localStorage.removeItem('bls_active_token');
+        }
+
+        function isTokenExpired(expiryDate) {
+            return new Date() > new Date(expiryDate);
+        }
+
         function showMessage(text, type = 'success') {
             const messageDiv = document.getElementById('message');
             messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
             setTimeout(() => {
                 messageDiv.innerHTML = '';
             }, 5000);
+        }
+
+        // تفعيل التوكن للتخزين المحلي
+        async function activateToken() {
+            const token = document.getElementById('activateToken').value;
+            const deviceId = document.getElementById('deviceId').value;
+
+            if (!token) {
+                showMessage('❌ يرجى إدخال رمز الاشتراك', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/verify-token?token=${token}&device_id=${deviceId}`);
+                const data = await response.json();
+                
+                if (data.valid) {
+                    const tokenData = {
+                        token: token,
+                        deviceId: deviceId,
+                        expiry: data.expiry,
+                        activatedAt: new Date().toISOString(),
+                        plan: data.plan
+                    };
+                    
+                    saveActiveToken(tokenData);
+                    showMessage(`✅ تم تفعيل التوكن بنجاح! الصلاحية حتى: ${data.expiry}`);
+                    updateTokenStatusDisplay();
+                } else {
+                    showMessage(`❌ التوكن غير صالح: ${data.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ خطأ في تفعيل التوكن: ' + error.message, 'error');
+            }
+        }
+
+        // إلغاء تفعيل التوكن
+        function deactivateToken() {
+            removeActiveToken();
+            showMessage('✅ تم إلغاء تفعيل التوكن');
+            updateTokenStatusDisplay();
+        }
+
+        // التحقق من حالة التوكن
+        async function checkTokenStatus() {
+            const tokenData = getActiveToken();
+            
+            if (!tokenData) {
+                showMessage('❌ لا يوجد توكن مفعل على هذا المتصفح', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/verify-token?token=${tokenData.token}&device_id=${tokenData.deviceId}`);
+                const data = await response.json();
+                
+                if (data.valid) {
+                    showMessage(`✅ التوكن نشط! الصلاحية حتى: ${data.expiry} (${data.daysLeft} يوم متبقي)`);
+                } else {
+                    showMessage(`❌ التوكن غير صالح: ${data.error}`, 'error');
+                    removeActiveToken(); // إزالة التوكن المنتهي
+                }
+                
+            } catch (error) {
+                showMessage('❌ خطأ في التحقق: ' + error.message, 'error');
+            }
+        }
+
+        // تحديث عرض حالة التوكن
+        function updateTokenStatusDisplay() {
+            const tokenData = getActiveToken();
+            const statusDiv = document.getElementById('tokenStatus') || createTokenStatusDisplay();
+            
+            if (tokenData) {
+                const isExpired = isTokenExpired(tokenData.expiry);
+                statusDiv.innerHTML = `
+                    <div class="message ${isExpired ? 'error' : 'success'}">
+                        <strong>🔐 التوكن المفعل:</strong> ${tokenData.token}<br>
+                        <strong>📱 الجهاز:</strong> ${tokenData.deviceId}<br>
+                        <strong>📅 الصلاحية:</strong> ${tokenData.expiry} ${isExpired ? ' (منتهي)' : ''}<br>
+                        <strong>⏰ التفعيل:</strong> ${new Date(tokenData.activatedAt).toLocaleString('ar-EG')}
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="message error">
+                        ❌ لا يوجد توكن مفعل على هذا المتصفح
+                    </div>
+                `;
+            }
+        }
+
+        // إنشاء عرض حالة التوكن
+        function createTokenStatusDisplay() {
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'tokenStatus';
+            const controls = document.querySelector('.controls');
+            controls.parentNode.insertBefore(statusDiv, controls.nextSibling);
+            return statusDiv;
+        }
+
+        // التحقق التلقائي من صلاحية التوكن عند تحميل الصفحة
+        function autoCheckToken() {
+            const tokenData = getActiveToken();
+            if (tokenData) {
+                if (isTokenExpired(tokenData.expiry)) {
+                    showMessage('❌ التوكن المخزن منتهي الصلاحية', 'error');
+                    removeActiveToken();
+                } else {
+                    showMessage('✅ تم تحميل التوكن المخزن تلقائياً', 'success');
+                    checkTokenStatus();
+                }
+                updateTokenStatusDisplay();
+            }
         }
 
         async function loadSubscriptions() {
@@ -653,6 +798,7 @@
         // تحميل تلقائي عند فتح الصفحة
         window.onload = function() {
             loadSubscriptions();
+            autoCheckToken(); // التحقق التلقائي من التوكن المخزن
         };
     </script>
 </body>
