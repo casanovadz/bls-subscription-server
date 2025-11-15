@@ -78,7 +78,7 @@ let subscriptions = {
         active: true, 
         expiry: "2025-11-03",
         plan: "monthly",
-        createdAt: "2025-10-02",
+        createdAt: "2025-12-30",
         registeredDevice: null
     }
 };
