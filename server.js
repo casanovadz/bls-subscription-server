@@ -76,9 +76,9 @@ let subscriptions = {
     },
     "CASANOVA001": { 
         active: true, 
-        expiry: "2025-11-03",
+        expiry: "2025-12-30",
         plan: "monthly",
-        createdAt: "2025-12-30",
+        createdAt: "2025-11-15",
         registeredDevice: null
     }
 };
