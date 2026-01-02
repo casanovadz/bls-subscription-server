@@ -13,9 +13,9 @@ app.use(express.json());
 let subscriptions = {
     "BLSDZ001": { 
         active: true, 
-        expiry: "2026-01-01",
+        expiry: "2026-02-01",
         plan: "monthly",
-        createdAt: "2026-02-01",
+        createdAt: "2026-01-01",
         registeredDevice: null // ← الحقل الجديد
     },
     "BLSDZ002": { 
