@@ -69,9 +69,9 @@ let subscriptions = {
     },
     "BLSDZ7782727175944950553520HGN": { 
         active: true, 
-        expiry: "2025-12-30",
+        expiry: "2026-04-10",
         plan: "monthly",
-        createdAt: "2025-11-16",
+        createdAt: "2026-03-11",
         registeredDevice: null       
     },
     "CASANOVA001": { 
