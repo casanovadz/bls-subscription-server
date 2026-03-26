@@ -55,9 +55,9 @@ let subscriptions = {
     },
     "BLSDZ77827271759449505535GRJRR": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-03",
+        createdAt: "2026-03-25",
         registeredDevice: null
     },
     "BLSDZ778272717594495055351A6E4": { 
