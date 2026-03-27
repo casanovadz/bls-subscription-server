@@ -11,46 +11,46 @@ app.use(express.json());
 
 // قاعدة بيانات الاشتراكات - محدثة مع دعم الجهاز
 let subscriptions = {
-    "BLSDZ001": { 
+    "BLSDZ0018948484848484854YUGGTGTYY": { 
         active: true, 
-        expiry: "2026-02-01",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2026-01-01",
+        createdAt: "2026-03-25",
         registeredDevice: null // ← الحقل الجديد
     },
-    "BLSDZ002": { 
+    "BLSDZ002484848484845UYGTTGYGUHHHB": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-02",
+        createdAt: "2026-03-25",
         registeredDevice: null
     },
-    "BLSDZ003": { 
+    "BLSDZ003958959595859594YGTFTYGYGY": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-02",
+        createdAt: "2026-03-25",
         registeredDevice: null
     },
     "TESTFREE": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-02",
+        createdAt: "2026-03-25",
         registeredDevice: null
      },
     "BLSDZ77827271759449505535N7HTJ": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-03",
+        createdAt: "2026-03-25",
         registeredDevice: null
     },
     "BLSDZ77827271759449505535ETTNK": { 
         active: true, 
-        expiry: "2025-10-03",
+        expiry: "2026-04-25",
         plan: "monthly",
-        createdAt: "2025-10-03",
+        createdAt: "2026-03-25",
         registeredDevice: null
     },
     "BLSDZ77827271759449505535GRJRR": { 
