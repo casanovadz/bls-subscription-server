@@ -13,16 +13,16 @@ app.use(express.json());
 let subscriptions = {
     "BLSDZ0018948484848484854YUGGTGTYY": { 
         active: true, 
-        expiry: "2026-04-25",
+        expiry: "2026-04-29",
         plan: "monthly",
-        createdAt: "2026-03-25",
+        createdAt: "2026-03-29",
         registeredDevice: null // ← الحقل الجديد
     },
     "BLSDZ002484848484845UYGTTGYGUHHHB": { 
         active: true, 
-        expiry: "2026-04-25",
+        expiry: "2026-04-29",
         plan: "monthly",
-        createdAt: "2026-03-25",
+        createdAt: "2026-03-29",
         registeredDevice: null
     },
     "BLSDZ003958959595859594YGTFTYGYGY": { 
