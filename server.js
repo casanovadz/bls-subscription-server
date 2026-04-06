@@ -11,16 +11,16 @@ app.use(express.json());
 
 // قاعدة بيانات الاشتراكات - محدثة مع دعم الجهاز
 let subscriptions = {
-    "BLSDZ0018948484848484854YUGGTGTYY": { 
+    "BLSDZ0018948484848454545454GTGTYY": { 
         active: true, 
-        expiry: "2026-04-29",
+        expiry: "2026-04-05",
         plan: "monthly",
         createdAt: "2026-03-29",
         registeredDevice: null // ← الحقل الجديد
     },
-    "BLSDZ002484848484845UYGTTGYGUHHHB": { 
+    "BLSDZ00248484846445465656GYGUHHHB": { 
         active: true, 
-        expiry: "2026-04-29",
+        expiry: "2026-04-05",
         plan: "monthly",
         createdAt: "2026-03-29",
         registeredDevice: null
