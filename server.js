@@ -34,9 +34,9 @@ let subscriptions = {
     },
     "TESTFREE": { 
         active: true, 
-        expiry: "2026-04-25",
+        expiry: "2026-12-30",
         plan: "monthly",
-        createdAt: "2026-03-25",
+        createdAt: "2026-04-25",
         registeredDevice: null
      },
     "BLSDZ77827271759449505535N7HTJ": { 
@@ -69,9 +69,9 @@ let subscriptions = {
     },
     "BLSDZ7782727175944950553520HGN": { 
         active: true, 
-        expiry: "2026-04-10",
+        expiry: "2026-12-30",
         plan: "monthly",
-        createdAt: "2026-03-11",
+        createdAt: "2026-04-25",
         registeredDevice: null       
     },
     "CASANOVA001": { 
